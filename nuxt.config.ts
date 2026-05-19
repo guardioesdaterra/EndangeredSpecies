@@ -2,6 +2,8 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: false },
   app: {
+    baseURL: '/EndangeredSpecies/',
+    buildAssetsDir: '_nuxt',
     head: {
       title: 'Critically Endangered Species Map',
       htmlAttrs: { lang: 'en' },

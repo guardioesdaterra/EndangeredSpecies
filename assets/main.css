@@ -698,6 +698,7 @@ body {
   .attribution-overlay {
     display: none
   }
+}
 
 /* ===== DARK MODE ===== */
 body.dark-mode {
