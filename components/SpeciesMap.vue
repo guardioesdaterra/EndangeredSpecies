@@ -29,6 +29,10 @@ const mapContainer = ref<HTMLDivElement>()
 let map: L.Map | null = null
 const markersLayer = ref<L.LayerGroup | null>(null)
 const rangeLayer = ref<L.GeoJSON | null>(null)
+let updateTimeout: ReturnType<typeof setTimeout> | null = null
+
+// Cache markers by species ID for efficient diffing
+const markerCache = new Map<string, L.Marker>()
 
 // Track dynamically created Vue apps for popups to clean up
 const popupApps = new Map<string, { app: any; el: HTMLElement }>()
@@ -44,12 +48,16 @@ const groupColors: Record<string, string> = {
   Invertebrate: '#DB2777'
 }
 
+function getBorderColor(): string {
+  return isDark.value ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.85)'
+}
+
 function createDivIcon(species: Species): L.DivIcon {
   const color = groupColors[species.taxonomicGroup] ?? '#B64032'
-  const borderColor = isDark.value ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.85)'
+  const borderColor = getBorderColor()
   return L.divIcon({
     className: 'species-dot',
-    html: `<div style="width:14px;height:14px;background:${color};border:2px solid ${borderColor};border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,0.3);"></div>`,
+    html: `<div class="species-dot-inner" style="width:14px;height:14px;background:${color};border:2px solid ${borderColor};border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,0.3);"></div>`,
     iconSize: [14, 14],
     iconAnchor: [7, 7]
   })
@@ -61,7 +69,9 @@ function initMap() {
   map = L.map(mapContainer.value, {
     center: [20, 0],
     zoom: 2,
-    zoomControl: false
+    zoomControl: false,
+    fadeAnimation: true,
+    markerZoomAnimation: true
   })
 
   // Add zoom control to bottom-right corner
@@ -82,58 +92,122 @@ function initMap() {
     iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
     shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png'
   })
+
+  // Update markers once map is ready
+  updateMarkers()
 }
 
 function updateMarkers() {
   if (!markersLayer.value || !map) return
 
-  // Clear existing markers and popup apps
-  markersLayer.value.clearLayers()
-  popupApps.forEach(({ app }) => app.unmount())
-  popupApps.clear()
+  // Cancel pending update
+  if (updateTimeout !== null) {
+    clearTimeout(updateTimeout)
+    updateTimeout = null
+  }
 
+  // Wait for zoom animation to complete
+  if (map.isAnimatingZoom() || (map as any)._zooming) {
+    updateTimeout = setTimeout(updateMarkers, 50)
+    return
+  }
+
+  const currentIds = new Set(props.filteredSpecies.map(s => s.id))
+  const cachedIds = new Set(markerCache.keys())
+
+  // Remove markers that are no longer in the filtered list
+  const toRemove = new Set<string>()
+  cachedIds.forEach(id => {
+    if (!currentIds.has(id)) {
+      toRemove.add(id)
+    }
+  })
+
+  toRemove.forEach(id => {
+    const marker = markerCache.get(id)
+    if (marker) {
+      markersLayer.value!.removeLayer(marker)
+      markerCache.delete(id)
+    }
+    const popup = popupApps.get(id)
+    if (popup) {
+      popup.app.unmount()
+      popupApps.delete(id)
+    }
+  })
+
+  // Add new markers or update existing ones
   props.filteredSpecies.forEach(species => {
+    const existingMarker = markerCache.get(species.id)
+
+    if (existingMarker) {
+      // Update icon if dark mode changed
+      existingMarker.setIcon(createDivIcon(species))
+      return
+    }
+
+    // Create new marker
     const marker = L.marker([species.lat, species.lng], {
       icon: createDivIcon(species)
     })
 
+    // Attach click handler once
     marker.on('click', () => {
       emit('select-species', species)
-
-      const el = document.createElement('div')
-      const app = createApp({
-        render: () => h(SpeciesPopup, {
-          species,
-          hasRange: !!species.range,
-          lang: lang.value,
-          onClearRange: () => emit('clear-range')
-        })
-      })
-
-      app.mount(el)
-
-      const popupKey = species.id
-      popupApps.set(popupKey, { app, el })
-
-      marker.bindPopup(el, {
-        maxWidth: 380,
-        minWidth: 340,
-        autoPan: true,
-        autoPanPadding: [50, 50],
-        className: 'species-popup-wrapper'
-      }).openPopup()
-
-      // Scroll popup to top after opening
-      setTimeout(() => {
-        const popupContent = el.closest('.leaflet-popup-content')
-        if (popupContent) {
-          popupContent.scrollTop = 0
-        }
-      }, 100)
+      openPopup(species, marker)
     })
 
+    markerCache.set(species.id, marker)
     markersLayer.value!.addLayer(marker)
   })
+}
+
+function openPopup(species: Species, marker: L.Marker) {
+  // Close any existing popup first
+  if (map) {
+    map.closePopup()
+  }
+
+  // Clean up existing popup for this species
+  const existingPopup = popupApps.get(species.id)
+  if (existingPopup) {
+    existingPopup.app.unmount()
+    popupApps.delete(species.id)
+  }
+
+  const el = document.createElement('div')
+  el.classList.add('species-popup-content')
+
+  const app = createApp({
+    render: () => h(SpeciesPopup, {
+      species,
+      hasRange: !!species.range,
+      lang: lang.value,
+      onClearRange: () => emit('clear-range')
+    })
+  })
+
+  app.mount(el)
+
+  popupApps.set(species.id, { app, el })
+
+  // Disable autoPan if map is moving to prevent conflicts
+  const mapMoving = map!.moving() || map!.isAnimatingZoom()
+  marker.bindPopup(el, {
+    maxWidth: 380,
+    minWidth: 340,
+    autoPan: !mapMoving,
+    autoPanPadding: [50, 50],
+    className: 'species-popup-wrapper'
+  }).openPopup()
+
+  // Scroll popup to top after opening
+  setTimeout(() => {
+    const popupContent = el.closest('.leaflet-popup-content')
+    if (popupContent) {
+      popupContent.scrollTop = 0
+    }
+  }, 100)
 }
 
 function updateRangePolygon() {
@@ -168,9 +242,16 @@ onMounted(() => {
   initMap()
 })
 
-// Update markers when filtered species change
+// Update markers when filtered species change with debouncing
 watch(() => props.filteredSpecies, () => {
-  updateMarkers()
+  // Debounce to prevent rapid successive updates during heavy movements
+  if (updateTimeout !== null) {
+    clearTimeout(updateTimeout)
+  }
+  updateTimeout = setTimeout(() => {
+    updateMarkers()
+    updateTimeout = null
+  }, 100)
 }, { deep: true })
 
 // Update range polygon when active region changes
@@ -190,8 +271,13 @@ watch(isDark, () => {
 
 // Cleanup on unmount
 onBeforeUnmount(() => {
+  if (updateTimeout !== null) {
+    clearTimeout(updateTimeout)
+    updateTimeout = null
+  }
   popupApps.forEach(({ app }) => app.unmount())
   popupApps.clear()
+  markerCache.clear()
   if (map) {
     map.remove()
     map = null
@@ -203,5 +289,28 @@ onBeforeUnmount(() => {
 .map-container {
   width: 100%;
   height: 100%;
+}
+
+:deep(.species-dot) {
+  transition: transform 0.2s ease;
+}
+
+:deep(.species-dot-inner) {
+  animation: markerFadeIn 0.3s ease-out;
+}
+
+@keyframes markerFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+:deep(.leaflet-popup-content) {
+  transition: opacity 0.2s ease;
 }
 </style>

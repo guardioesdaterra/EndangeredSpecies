@@ -734,15 +734,27 @@ body.dark-mode {
 }
 
 body.dark-mode .leaflet-container {
-  background: #1a2320
+  background: #1a2320 !important
 }
 
-body.dark-mode .leaflet-tile-pane {
-  filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%) saturate(85%)
+/* Invert all Leaflet tile-related elements */
+body.dark-mode .leaflet-tile-pane,
+body.dark-mode .leaflet-tile-pane *,
+body.dark-mode .leaflet-overlay-pane,
+body.dark-mode .leaflet-overlay-pane * {
+  filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9) saturate(0.85) !important;
+  -webkit-filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9) saturate(0.85) !important
 }
 
-body.dark-mode .leaflet-tile-pane img {
-  filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%) saturate(85%)
+/* Reset markers so they don't get double-inverted */
+body.dark-mode .leaflet-marker-pane,
+body.dark-mode .leaflet-marker-pane *,
+body.dark-mode .leaflet-popup-pane,
+body.dark-mode .leaflet-popup-pane *,
+body.dark-mode .leaflet-control-zoom,
+body.dark-mode .leaflet-control-zoom * {
+  filter: none !important;
+  -webkit-filter: none !important
 }
 
 body.dark-mode .filter-search,
