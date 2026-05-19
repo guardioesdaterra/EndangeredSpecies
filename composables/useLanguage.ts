@@ -24,7 +24,8 @@ const translations: Record<string, Record<string, any>> = {
     imageUnavailable: 'Image unavailable',
     language: 'Language',
     resetFilters: 'Reset filters',
-    crBadge: 'CR \u00b7 Critically Endangered'
+    crBadge: 'CR \u00b7 Critically Endangered',
+    filter: 'Filter'
   },
   es: {
     appTitle: 'Mapa de Especies en Peligro Cr\u00edtico',
@@ -50,7 +51,8 @@ const translations: Record<string, Record<string, any>> = {
     imageUnavailable: 'Imagen no disponible',
     language: 'Idioma',
     resetFilters: 'Restablecer filtros',
-    crBadge: 'CR \u00b7 En Peligro Cr\u00edtico'
+    crBadge: 'CR \u00b7 En Peligro Cr\u00edtico',
+    filter: 'Filtro'
   },
   pt: {
     appTitle: 'Mapa de Esp\u00e9cies em Perigo Cr\u00edtico',
@@ -76,7 +78,8 @@ const translations: Record<string, Record<string, any>> = {
     imageUnavailable: 'Imagem indispon\u00edvel',
     language: 'Idioma',
     resetFilters: 'Redefinir filtros',
-    crBadge: 'CR \u00b7 Em Perigo Cr\u00edtico'
+    crBadge: 'CR \u00b7 Em Perigo Cr\u00edtico',
+    filter: 'Filtro'
   },
   fr: {
     appTitle: 'Carte des Esp\u00e8ces en Danger Critique',
@@ -102,7 +105,8 @@ const translations: Record<string, Record<string, any>> = {
     imageUnavailable: 'Image indisponible',
     language: 'Langue',
     resetFilters: 'R\u00e9initialiser les filtres',
-    crBadge: 'CR \u00b7 En Danger Critique'
+    crBadge: 'CR \u00b7 En Danger Critique',
+    filter: 'Filtre'
   }
 }
 

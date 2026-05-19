@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { createApp, h, onBeforeUnmount } from 'vue'
+import { createApp, h, onMounted, onBeforeUnmount } from 'vue'
 import type { Species } from '~/composables/useSpeciesData'
 import SpeciesPopup from './SpeciesPopup.vue'
 
@@ -30,6 +30,7 @@ let map: L.Map | null = null
 const markersLayer = ref<L.LayerGroup | null>(null)
 const rangeLayer = ref<L.GeoJSON | null>(null)
 let updateTimeout: ReturnType<typeof setTimeout> | null = null
+let currentOpenMarker: L.Marker | null = null
 
 // Cache markers by species ID for efficient diffing
 const markerCache = new Map<string, L.Marker>()
@@ -151,9 +152,16 @@ function updateMarkers() {
       icon: createDivIcon(species)
     })
 
-    // Attach click handler once
+    // Attach click handler
     marker.on('click', () => {
       emit('select-species', species)
+
+      // If this marker's popup is already open, close it
+      if (currentOpenMarker === marker && map!.getPopup()) {
+        closeCurrentPopup()
+        return
+      }
+
       openPopup(species, marker)
     })
 
@@ -162,11 +170,18 @@ function updateMarkers() {
   })
 }
 
-function openPopup(species: Species, marker: L.Marker) {
-  // Close any existing popup first
+function closeCurrentPopup() {
   if (map) {
     map.closePopup()
   }
+  currentOpenMarker = null
+}
+
+function openPopup(species: Species, marker: L.Marker) {
+  if (!map) return
+
+  // Close any existing popup first
+  map.closePopup()
 
   // Clean up existing popup for this species
   const existingPopup = popupApps.get(species.id)
@@ -191,23 +206,73 @@ function openPopup(species: Species, marker: L.Marker) {
 
   popupApps.set(species.id, { app, el })
 
-  // Disable autoPan if map is moving to prevent conflicts
-  const mapMoving = map!.moving() || map!.isAnimatingZoom()
+  // Track current open marker
+  currentOpenMarker = marker
+
+  // Calculate responsive autoPan padding based on viewport
+  // Larger padding on mobile to avoid UI overlays
+  const vw = window.innerWidth
+  const vh = window.innerHeight
+  const isMobile = vw <= 480
+
+  const paddingX = isMobile ? Math.max(vw * 0.06, 20) : Math.min(vw * 0.08, 60)
+  const paddingY = isMobile ? Math.max(vh * 0.18, 80) : Math.min(vh * 0.12, 80)
+
+  // Create popup with smart positioning
   marker.bindPopup(el, {
-    maxWidth: 380,
-    minWidth: 340,
-    autoPan: !mapMoving,
-    autoPanPadding: [50, 50],
-    className: 'species-popup-wrapper'
+    maxWidth: isMobile ? Math.min(vw - 20, 380) : Math.min(vw - 40, 380),
+    minWidth: 260,
+    autoPan: true,
+    autoPanPaddingTopLeft: [paddingX, paddingY],
+    autoPanPaddingBottomRight: [paddingX, paddingY],
+    keepInView: true,
+    className: 'species-popup-wrapper',
+    closeOnClick: false,
+    autoClose: false
   }).openPopup()
 
-  // Scroll popup to top after opening
+  // Pan map to ensure popup is fully visible after it opens
+  // Wait for popup to render so we can measure it
   setTimeout(() => {
+    if (!map) return
+
+    const popupElement = el.closest('.leaflet-popup')
+    if (popupElement) {
+      const popupRect = popupElement.getBoundingClientRect()
+      const mapRect = map.getContainer().getBoundingClientRect()
+
+      // Check if popup is going off-screen
+      const offLeft = popupRect.left < mapRect.left + paddingX
+      const offRight = popupRect.right > mapRect.right - paddingX
+      const offTop = popupRect.top < mapRect.top + paddingY
+      const offBottom = popupRect.bottom > mapRect.bottom - paddingY
+
+      // If popup is off-screen, pan to center it
+      if (offLeft || offRight || offTop || offBottom) {
+        const markerLatLng = marker.getLatLng()
+        const popupWidth = popupRect.width
+        const popupHeight = popupRect.height
+
+        // Calculate the ideal center point (popup appears above marker)
+        const offsetLatLng = L.latLng(
+          markerLatLng.lat + (popupHeight / 111320) * 0.5,
+          markerLatLng.lng
+        )
+
+        map.panTo(offsetLatLng, {
+          animate: true,
+          duration: 0.3,
+          noMoveStart: true
+        })
+      }
+    }
+
+    // Scroll popup to top
     const popupContent = el.closest('.leaflet-popup-content')
     if (popupContent) {
-      popupContent.scrollTop = 0
+      (popupContent as HTMLElement).scrollTop = 0
     }
-  }, 100)
+  }, 150)
 }
 
 function updateRangePolygon() {
@@ -240,7 +305,26 @@ function updateRangePolygon() {
 // Initialize map
 onMounted(() => {
   initMap()
+
+  // Handle viewport changes (mobile keyboard, orientation, etc)
+  window.addEventListener('resize', handleResize)
 })
+
+function handleResize() {
+  if (!map) return
+
+  // Invalidate size to trigger Leaflet's internal resize
+  map.invalidateSize()
+
+  // Update any open popup with new sizing
+  const openPopup = map.popup
+  if (openPopup) {
+    const options = openPopup.options
+    const vw = window.innerWidth
+    const isMobile = vw <= 480
+    options.maxWidth = isMobile ? Math.min(vw - 20, 380) : Math.min(vw - 40, 380)
+  }
+}
 
 // Update markers when filtered species change with debouncing
 watch(() => props.filteredSpecies, () => {
@@ -271,6 +355,7 @@ watch(isDark, () => {
 
 // Cleanup on unmount
 onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
   if (updateTimeout !== null) {
     clearTimeout(updateTimeout)
     updateTimeout = null

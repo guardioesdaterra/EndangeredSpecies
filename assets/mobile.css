@@ -1,0 +1,484 @@
+/* ===== MOBILE FIRST IMPROVEMENTS ===== */
+
+/* Safe area insets for modern phones */
+.map-wrapper {
+  padding-top: env(safe-area-inset-top, 0);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  padding-left: env(safe-area-inset-left, 0);
+  padding-right: env(safe-area-inset-right, 0)
+}
+
+/* Improve touch scrolling */
+.filter-panel {
+  -webkit-overflow-scrolling: touch
+}
+
+/* Prevent text selection on buttons */
+.mobile-filter-toggle,
+.reset-btn,
+.dark-mode-toggle,
+.clear-range-btn {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent
+}
+
+/* ===== Tablet (768px and below) ===== */
+@media (max-width: 768px) {
+  .title-panel {
+    top: 12px;
+    left: 12px;
+    max-width: 240px;
+    padding: 12px 14px
+  }
+
+  .title-panel h1 {
+    font-size: 0.88rem
+  }
+
+  .title-panel p {
+    font-size: 0.65rem
+  }
+
+  .filter-panel {
+    top: 12px;
+    right: 12px;
+    width: 230px;
+    padding: 14px 15px;
+    max-height: calc(100dvh - 140px)
+  }
+
+  .legend-panel {
+    bottom: 20px;
+    left: 12px;
+    padding: 10px 13px
+  }
+
+  .legend-panel .legend-row {
+    gap: 6px
+  }
+
+  .legend-dot {
+    width: 9px;
+    height: 9px
+  }
+
+  .legend-label {
+    font-size: 0.65rem
+  }
+}
+
+/* ===== Mobile (480px and below) ===== */
+@media (max-width: 480px) {
+  /* Title Panel - Compact Top Bar */
+  .title-panel {
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    max-width: none;
+    padding: 10px 12px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px)
+  }
+
+  .title-panel h1 {
+    font-size: 0.78rem;
+    line-height: 1.1;
+    margin: 0
+  }
+
+  .title-panel p {
+    display: none
+  }
+
+  .cr-badge-title {
+    font-size: 0.52rem;
+    padding: 3px 7px 3px 6px;
+    flex-shrink: 0
+  }
+
+  /* Filter Panel - Bottom Sheet */
+  .filter-panel {
+    top: auto !important;
+    bottom: 0 !important;
+    right: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    max-height: min(75dvh, 520px);
+    border-radius: 20px 20px 0 0 !important;
+    padding: 12px 16px 24px !important;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1001 !important;
+    overflow-y: auto;
+    overscroll-behavior: contain
+  }
+
+  .filter-panel.filter-panel-open {
+    transform: translateY(0)
+  }
+
+  /* Filter Panel Header with Drag Handle */
+  .filter-panel::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    background: rgba(128, 128, 128, 0.3);
+    border-radius: 2px;
+    margin: 0 auto 12px
+  }
+
+  .filter-panel h2 {
+    font-size: 0.68rem;
+    margin-bottom: 10px
+  }
+
+  .filter-panel .filter-group {
+    margin-bottom: 8px
+  }
+
+  .filter-panel .filter-label {
+    font-size: 0.55rem;
+    margin-bottom: 5px
+  }
+
+  /* Larger touch targets for selects and inputs */
+  .filter-panel .filter-search,
+  .filter-panel .filter-select {
+    padding: 10px 28px 10px 12px;
+    font-size: 0.88rem;
+    min-height: 44px;
+    border-radius: 10px
+  }
+
+  .filter-panel .filter-search {
+    margin-bottom: 12px
+  }
+
+  .filter-panel .filter-count {
+    font-size: 0.7rem;
+    padding: 6px 12px;
+    margin-bottom: 12px
+  }
+
+  .filter-panel .reset-btn {
+    padding: 10px 0;
+    font-size: 0.7rem;
+    min-height: 44px;
+    margin-bottom: 12px;
+    border-radius: 10px
+  }
+
+  .filter-panel .dark-mode-toggle {
+    padding: 10px 12px;
+    font-size: 0.68rem;
+    min-height: 44px;
+    border-radius: 10px
+  }
+
+  .filter-panel .dark-mode-toggle svg {
+    width: 16px;
+    height: 16px
+  }
+
+  /* Mobile Filter Toggle Button */
+  .mobile-filter-toggle {
+    display: flex !important;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 1002;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 9px 13px;
+    background: var(--eg-panel-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--eg-border);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(31, 42, 36, 0.12);
+    color: var(--eg-forest);
+    font-family: Montserrat, sans-serif;
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 40px;
+    min-width: 40px
+  }
+
+  .mobile-filter-toggle svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.3s ease;
+    flex-shrink: 0
+  }
+
+  .mobile-filter-toggle .mobile-toggle-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80px
+  }
+
+  .mobile-filter-toggle.active svg {
+    transform: rotate(90deg)
+  }
+
+  .mobile-filter-toggle:active {
+    transform: scale(0.95)
+  }
+
+  .mobile-filter-toggle .filter-count-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: var(--eg-teal);
+    color: var(--eg-white);
+    font-size: 0.52rem;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 8px;
+    min-width: 16px;
+    text-align: center;
+    line-height: 1
+  }
+
+  /* Hide text on very small screens, show icon only */
+  @media (max-width: 380px) {
+    .mobile-filter-toggle .mobile-toggle-text {
+      display: none
+    }
+
+    .mobile-filter-toggle {
+      padding: 9px;
+      min-width: 44px;
+      min-height: 44px
+    }
+  }
+
+  /* Backdrop overlay */
+  .mobile-panel-backdrop {
+    display: block !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 1000 !important;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease
+  }
+
+  .mobile-panel-backdrop.active {
+    opacity: 1;
+    pointer-events: auto
+  }
+
+  /* Legend Panel - Hide on small mobile */
+  .legend-panel {
+    bottom: 12px;
+    left: 8px;
+    right: 8px;
+    max-width: 280px;
+    padding: 10px 12px;
+    border-radius: 12px
+  }
+
+  .legend-title {
+    font-size: 0.55rem;
+    margin-bottom: 7px
+  }
+
+  .legend-row {
+    gap: 6px;
+    margin-bottom: 5px
+  }
+
+  .legend-dot {
+    width: 8px;
+    height: 8px
+  }
+
+  .legend-label {
+    font-size: 0.62rem
+  }
+
+  /* Larger species markers for touch */
+  .species-dot {
+    width: 16px;
+    height: 16px
+  }
+
+  .species-dot:hover {
+    transform: scale(1.5)
+  }
+
+  /* Popup improvements */
+  .leaflet-popup-content-wrapper {
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    border-radius: 16px !important;
+    max-height: min(70dvh, 480px)
+  }
+
+  .leaflet-popup-content {
+    max-height: min(70dvh, 480px)
+  }
+
+  .popup-img {
+    height: clamp(110px, 28vh, 150px)
+  }
+
+  .popup-img-fallback {
+    height: clamp(110px, 28vh, 150px)
+  }
+
+  .popup-body {
+    padding: 12px 14px 14px
+  }
+
+  .popup-names h3 {
+    font-size: 0.88rem
+  }
+
+  .popup-names em {
+    font-size: 0.68rem
+  }
+
+  .popup-section p {
+    font-size: 0.72rem
+  }
+
+  .popup-section {
+    margin-bottom: 8px
+  }
+
+  /* Larger close button for popup */
+  .leaflet-popup-close-button {
+    top: 10px !important;
+    right: 10px !important;
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 16px !important
+  }
+
+  /* Zoom control */
+  .leaflet-control-zoom {
+    margin-bottom: 16px !important;
+    margin-right: 6px !important
+  }
+
+  .leaflet-control-zoom a {
+    min-height: 36px !important;
+    font-size: 1.2rem !important
+  }
+
+  .leaflet-bottom.leaflet-right .leaflet-control-zoom {
+    margin-bottom: 16px !important;
+    margin-right: 6px !important
+  }
+
+  /* Hide attribution on mobile */
+  .attribution-overlay {
+    display: none
+  }
+
+  /* Better touch interactions */
+  .filter-select,
+  .filter-search {
+    -webkit-appearance: none;
+    appearance: none
+  }
+
+  /* Smooth scroll behavior */
+  .filter-panel {
+    scroll-behavior: smooth
+  }
+
+  /* Prevent iOS zoom on double tap */
+  body {
+    touch-action: manipulation
+  }
+}
+
+/* ===== Extra Small Mobile (360px and below) ===== */
+@media (max-width: 360px) {
+  .title-panel {
+    top: 6px;
+    left: 6px;
+    right: 6px;
+    padding: 8px 10px
+  }
+
+  .title-panel h1 {
+    font-size: 0.72rem
+  }
+
+  .mobile-filter-toggle {
+    top: 6px;
+    right: 6px;
+    padding: 8px 11px;
+    font-size: 0.62rem
+  }
+
+  .filter-panel {
+    max-height: min(80dvh, 460px);
+    padding: 10px 14px 20px !important
+  }
+
+  .legend-panel {
+    display: none
+  }
+}
+
+/* ===== Landscape mobile optimization ===== */
+@media (max-height: 500px) and (orientation: landscape) {
+  .title-panel {
+    top: 6px;
+    left: 8px;
+    padding: 6px 12px
+  }
+
+  .title-panel h1 {
+    font-size: 0.72rem
+  }
+
+  .title-panel p {
+    display: none
+  }
+
+  .filter-panel {
+    max-height: 85dvh
+  }
+
+  .legend-panel {
+    display: none
+  }
+
+  .leaflet-popup-content-wrapper {
+    max-height: 80dvh
+  }
+
+  .popup-img {
+    height: 80px
+  }
+
+  .popup-img-fallback {
+    height: 80px
+  }
+}

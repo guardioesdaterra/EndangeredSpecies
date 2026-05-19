@@ -289,21 +289,40 @@ body {
   box-shadow: var(--eg-shadow) !important;
   border: 1px solid var(--eg-border) !important;
   overflow: hidden !important;
-  max-width: 380px !important;
-  width: 380px !important;
+  max-width: min(380px, calc(100vw - 24px)) !important;
+  width: min(380px, calc(100vw - 24px)) !important;
   background: var(--eg-white) !important;
   backdrop-filter: blur(10px) !important;
   -webkit-backdrop-filter: blur(10px) !important;
-  color: var(--eg-text) !important
+  color: var(--eg-text) !important;
+  position: relative !important;
+  animation: popupFadeIn 0.25s ease-out
+}
+
+@keyframes popupFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96)
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1)
+  }
 }
 
 .leaflet-popup-content {
   margin: 0 !important;
   width: 100% !important;
-  max-height: 72dvh;
+  max-height: min(72dvh, calc(100dvh - 120px));
   overflow-y: auto;
+  overflow-x: hidden;
   background: transparent !important;
-  color: var(--eg-text) !important
+  color: var(--eg-text) !important;
+  -webkit-overflow-scrolling: touch
+}
+
+.leaflet-popup {
+  margin-bottom: 10px !important
 }
 
 .leaflet-popup-tip,
@@ -331,20 +350,37 @@ body {
 .popup-card {
   background: var(--eg-white);
   font-family: Inter, sans-serif;
-  color: var(--eg-text)
+  color: var(--eg-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale
+}
+
+.popup-card * {
+  box-sizing: border-box
+}
+
+.popup-card ::selection {
+  background: var(--eg-teal-dim);
+  color: var(--eg-forest)
 }
 
 .popup-img {
   width: 100%;
-  height: 175px;
+  height: clamp(120px, 30vh, 175px);
   object-fit: cover;
   display: block;
-  filter: brightness(.95)
+  filter: brightness(.95);
+  background: linear-gradient(135deg, var(--eg-cream) 0%, var(--eg-sand) 100%);
+  transition: opacity 0.3s ease
+}
+
+.popup-img:hover {
+  filter: brightness(1)
 }
 
 .popup-img-fallback {
   width: 100%;
-  height: 175px;
+  height: clamp(120px, 30vh, 175px);
   background: linear-gradient(135deg, var(--eg-cream) 0%, var(--eg-sand) 100%);
   display: flex;
   align-items: center;
@@ -373,21 +409,31 @@ body {
   align-items: flex-start;
   justify-content: space-between;
   gap: 8px;
-  margin-bottom: 8px
+  margin-bottom: 8px;
+  flex-wrap: wrap
+}
+
+.popup-names {
+  flex: 1;
+  min-width: 0
 }
 
 .popup-names h3 {
   font-family: Montserrat, sans-serif;
-  font-size: .95rem;
+  font-size: 0.95rem;
   font-weight: 800;
   color: var(--eg-forest);
-  line-height: 1.2
+  line-height: 1.2;
+  margin: 0 0 4px 0;
+  word-wrap: break-word
 }
 
 .popup-names em {
-  font-size: .72rem;
+  font-size: 0.72rem;
   color: var(--eg-muted);
-  font-style: italic
+  font-style: italic;
+  display: block;
+  line-height: 1.3
 }
 
 .cr-badge {
@@ -416,33 +462,39 @@ body {
   background: #214e3414;
   color: var(--eg-forest);
   font-family: Montserrat, sans-serif;
-  font-size: .59rem;
+  font-size: 0.59rem;
   font-weight: 700;
-  padding: 2px 8px;
+  padding: 3px 9px;
   border-radius: 20px;
   border: 1px solid var(--eg-border);
   text-transform: uppercase;
-  letter-spacing: .05em
+  letter-spacing: 0.05em;
+  white-space: nowrap
+}
+
+.meta-tag:hover {
+  background: #214e3422
 }
 
 .popup-section {
-  margin-bottom: 9px
+  margin-bottom: 10px
 }
 
 .popup-section-label {
   font-family: Montserrat, sans-serif;
-  font-size: .57rem;
+  font-size: 0.57rem;
   font-weight: 800;
   color: var(--eg-teal);
   text-transform: uppercase;
-  letter-spacing: .13em;
-  margin-bottom: 3px
+  letter-spacing: 0.13em;
+  margin-bottom: 4px
 }
 
 .popup-section p {
-  font-size: .76rem;
+  font-size: 0.76rem;
   color: var(--eg-text);
-  line-height: 1.6
+  line-height: 1.6;
+  margin: 0
 }
 
 .threat-tags {
@@ -466,20 +518,25 @@ body {
 
 .popup-footer {
   border-top: 1px solid var(--eg-border);
-  margin-top: 10px;
-  padding-top: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px
+  gap: 8px;
+  flex-wrap: wrap
 }
 
 .image-credit {
-  font-size: .58rem;
+  font-size: 0.58rem;
   color: var(--eg-muted);
   font-style: italic;
   flex: 1;
-  line-height: 1.3
+  line-height: 1.3;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap
 }
 
 .clear-range-btn {
@@ -488,15 +545,15 @@ body {
   color: var(--eg-forest);
   border: 1.5px solid var(--eg-border);
   font-family: Montserrat, sans-serif;
-  font-size: .62rem;
+  font-size: 0.62rem;
   font-weight: 800;
-  padding: 5px 11px;
+  padding: 6px 12px;
   border-radius: 8px;
   cursor: pointer;
-  transition: background .2s, color .2s, border-color .2s;
+  transition: all 0.2s ease;
   white-space: nowrap;
   text-transform: uppercase;
-  letter-spacing: .07em;
+  letter-spacing: 0.07em;
   min-height: 32px
 }
 
@@ -504,6 +561,15 @@ body {
   background: var(--eg-forest);
   color: var(--eg-white);
   border-color: var(--eg-forest)
+}
+
+.clear-range-btn:active {
+  transform: scale(0.97)
+}
+
+.clear-range-btn:focus-visible {
+  outline: 2px solid var(--eg-teal);
+  outline-offset: 2px
 }
 
 .legend-panel {
@@ -617,24 +683,24 @@ body {
   .title-panel {
     top: 12px;
     left: 12px;
-    max-width: 230px;
-    padding: 14px 16px
+    max-width: 240px;
+    padding: 12px 14px
   }
 
   .title-panel h1 {
-    font-size: .95rem
+    font-size: 0.88rem
   }
 
   .title-panel p {
-    font-size: .68rem
+    font-size: 0.65rem
   }
 
   .filter-panel {
     top: 12px;
     right: 12px;
-    width: 224px;
-    padding: 13px 14px;
-    max-height: calc(100dvh - 130px)
+    width: 230px;
+    padding: 14px 15px;
+    max-height: calc(100dvh - 140px)
   }
 
   .legend-panel {
@@ -646,16 +712,20 @@ body {
 
 @media (max-width: 480px) {
   .title-panel {
-    top: 10px;
-    left: 10px;
-    right: 10px;
+    top: 8px;
+    left: 8px;
+    right: 8px;
     max-width: none;
-    padding: 11px 14px;
-    border-radius: 12px
+    padding: 10px 12px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px
   }
 
   .title-panel h1 {
-    font-size: .85rem
+    font-size: 0.78rem
   }
 
   .title-panel p {
@@ -663,50 +733,18 @@ body {
   }
 
   .cr-badge-title {
-    font-size: .54rem;
-    padding: 3px 8px 3px 6px
-  }
-
-  .filter-panel {
-    top: auto;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    width: 100%;
-    max-height: 54dvh;
-    border-radius: 18px 18px 0 0;
-    padding: 14px 16px 20px
-  }
-
-  .legend-panel {
-    display: none
-  }
-
-  .leaflet-popup-content-wrapper {
-    width: calc(100vw - 16px) !important;
-    max-width: calc(100vw - 16px) !important
-  }
-
-  .leaflet-popup-content {
-    max-height: 65dvh
-  }
-
-  .popup-img {
-    height: 140px
+    font-size: 0.52rem;
+    padding: 3px 7px 3px 6px
   }
 
   .leaflet-control-zoom {
-    margin-bottom: 20px !important;
-    margin-right: 8px !important
+    margin-bottom: 16px !important;
+    margin-right: 6px !important
   }
 
   .leaflet-bottom.leaflet-right .leaflet-control-zoom {
-    margin-bottom: 20px !important;
-    margin-right: 8px !important
-  }
-
-  .attribution-overlay {
-    display: none
+    margin-bottom: 16px !important;
+    margin-right: 6px !important
   }
 }
 

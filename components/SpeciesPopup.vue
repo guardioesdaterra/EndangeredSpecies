@@ -73,6 +73,7 @@
 
 <script setup lang="ts">
 import type { Species } from '~/composables/useSpeciesData'
+import { getContent } from '~/composables/useSpeciesData'
 
 interface Props {
   species: Species

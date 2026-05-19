@@ -14,7 +14,7 @@ export default defineNuxtConfig({
       htmlAttrs: { lang: 'en' },
       meta: [
         { charset: 'utf-8' },
-        { name: 'viewport', content: 'width=device-width, initial-scale=1.0' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover' },
         { name: 'description', content: 'An interactive map of Critically Endangered species around the world.' }
       ],
       link: [
@@ -24,6 +24,6 @@ export default defineNuxtConfig({
       ]
     }
   },
-  css: ['~/assets/main.css'],
+  css: ['~/assets/main.css', '~/assets/mobile.css'],
   modules: []
 })
