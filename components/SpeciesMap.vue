@@ -108,7 +108,7 @@ function updateMarkers() {
   }
 
   // Wait for zoom animation to complete
-  if ((map as any).isAnimatingZoom() || (map as any)._zooming) {
+  if ((map as any)._zooming) {
     updateTimeout = setTimeout(updateMarkers, 50)
     return
   }
