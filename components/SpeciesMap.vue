@@ -61,8 +61,11 @@ function initMap() {
   map = L.map(mapContainer.value, {
     center: [20, 0],
     zoom: 2,
-    zoomControl: true
+    zoomControl: false
   })
+
+  // Add zoom control to bottom-right corner
+  L.control.zoom({ position: 'bottomright' }).addTo(map)
 
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
@@ -115,8 +118,18 @@ function updateMarkers() {
       marker.bindPopup(el, {
         maxWidth: 380,
         minWidth: 340,
-        autoPan: true
+        autoPan: true,
+        autoPanPadding: [50, 50],
+        className: 'species-popup-wrapper'
       }).openPopup()
+
+      // Scroll popup to top after opening
+      setTimeout(() => {
+        const popupContent = el.closest('.leaflet-popup-content')
+        if (popupContent) {
+          popupContent.scrollTop = 0
+        }
+      }, 100)
     })
 
     markersLayer.value!.addLayer(marker)
