@@ -347,8 +347,12 @@ watch(() => props.filteredSpecies, () => {
 }, { deep: true })
 
 // Update range polygon when active region changes
-watch(() => props.activeRegion, () => {
+watch(() => props.activeRegion, (newVal) => {
   updateRangePolygon()
+  // Close popup when range is cleared
+  if (!newVal) {
+    closeCurrentPopup()
+  }
 }, { deep: true })
 
 // Update popup language on language change
