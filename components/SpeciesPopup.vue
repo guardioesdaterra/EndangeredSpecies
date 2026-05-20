@@ -19,6 +19,11 @@
           <h3>{{ species.commonName }}</h3>
           <em>{{ species.scientificName }}</em>
         </div>
+        <button class="popup-close-btn" @click="$emit('close')" :aria-label="t('close')">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
         <span class="cr-badge">{{ t('crBadge') }}</span>
       </div>
 
@@ -84,6 +89,7 @@ interface Props {
 const props = defineProps<Props>()
 defineEmits<{
   'clear-range': []
+  'close': []
 }>()
 
 const { t, tTaxonomic, tRegion, tEcosystem, tThreat } = useLanguage()

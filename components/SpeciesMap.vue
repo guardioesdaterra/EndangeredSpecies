@@ -198,7 +198,8 @@ function openPopup(species: Species, marker: L.Marker) {
       species,
       hasRange: !!species.range,
       lang: lang.value,
-      onClearRange: () => emit('clear-range')
+      onClearRange: () => emit('clear-range'),
+      onClose: () => closeCurrentPopup()
     })
   })
 
@@ -223,9 +224,8 @@ function openPopup(species: Species, marker: L.Marker) {
     maxWidth: isMobile ? Math.min(vw - 20, 380) : Math.min(vw - 40, 380),
     minWidth: 260,
     autoPan: true,
-    autoPanPaddingTopLeft: [paddingX, paddingY],
+    autoPanPaddingTopLeft: [paddingX, paddingY * 2],
     autoPanPaddingBottomRight: [paddingX, paddingY],
-    keepInView: true,
     className: 'species-popup-wrapper',
     closeOnClick: false,
     autoClose: false
@@ -253,9 +253,17 @@ function openPopup(species: Species, marker: L.Marker) {
         const popupWidth = popupRect.width
         const popupHeight = popupRect.height
 
+        // Get zoom level to calculate appropriate offset
+        const zoom = map.getZoom()
+        const scaleFactor = Math.pow(2, 2 - zoom) * 50
+
+        // Extra padding for header visibility at higher zoom levels
+        const headerBuffer = Math.max(scaleFactor, 80)
+        
         // Calculate the ideal center point (popup appears above marker)
+        // Add extra offset to ensure header is always visible
         const offsetLatLng = L.latLng(
-          markerLatLng.lat + (popupHeight / 111320) * 0.5,
+          markerLatLng.lat + (popupHeight / 111320) * 0.6 + (headerBuffer / 111320),
           markerLatLng.lng
         )
 

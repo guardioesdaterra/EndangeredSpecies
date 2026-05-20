@@ -25,7 +25,8 @@ const translations: Record<string, Record<string, any>> = {
     language: 'Language',
     resetFilters: 'Reset filters',
     crBadge: 'CR \u00b7 Critically Endangered',
-    filter: 'Filter'
+    filter: 'Filter',
+    close: 'Close'
   },
   es: {
     appTitle: 'Mapa de Especies en Peligro Cr\u00edtico',
@@ -52,7 +53,36 @@ const translations: Record<string, Record<string, any>> = {
     language: 'Idioma',
     resetFilters: 'Restablecer filtros',
     crBadge: 'CR \u00b7 En Peligro Cr\u00edtico',
-    filter: 'Filtro'
+    filter: 'Filtro',
+    close: 'Cerrar'
+  },
+  pt: {
+    appTitle: 'Mapa de Esp\u00e9cies em Perigo Cr\u00edtico',
+    appSubtitle: 'Explore a fauna \u00e0 beira da extin\u00e7\u00e3o ao redor do globo.',
+    filterSpecies: 'Filtrar esp\u00e9cies',
+    searchPlaceholder: 'Buscar por nome\u2026',
+    taxonomicGroup: 'Grupo taxon\u00f4mico',
+    region: 'Regi\u00e3o',
+    ecosystem: 'Ecossistema',
+    threatType: 'Tipo de amea\u00e7a',
+    allGroups: 'Todos os grupos',
+    allRegions: 'Todas as regi\u00f5es',
+    allEcosystems: 'Todos os ecossistemas',
+    allThreats: 'Todas as amea\u00e7as',
+    showing: (count: number, total: number) => `Exibindo ${count} de ${total} esp\u00e9cies`,
+    speciesGroups: 'Grupos de esp\u00e9cies',
+    clearRegion: 'Limpar regi\u00e3o',
+    about: 'Sobre',
+    whyEndangered: 'Por que est\u00e1 em perigo',
+    ecosystemNeeds: 'Necessidades do ecossistema',
+    howYouCanHelp: 'Como voc\u00ea pode ajudar',
+    mainThreats: 'Principais amea\u00e7as',
+    imageUnavailable: 'Imagem indispon\u00edvel',
+    language: 'Idioma',
+    resetFilters: 'Redefinir filtros',
+crBadge: 'CR \u00b7 Em Perigo Cr\u00edtico',
+    filter: 'Filtro',
+    close: 'Fechar'
   },
   pt: {
     appTitle: 'Mapa de Esp\u00e9cies em Perigo Cr\u00edtico',
@@ -79,7 +109,8 @@ const translations: Record<string, Record<string, any>> = {
     language: 'Idioma',
     resetFilters: 'Redefinir filtros',
     crBadge: 'CR \u00b7 Em Perigo Cr\u00edtico',
-    filter: 'Filtro'
+    filter: 'Filtro',
+    close: 'Fechar'
   },
   fr: {
     appTitle: 'Carte des Esp\u00e8ces en Danger Critique',
@@ -106,7 +137,8 @@ const translations: Record<string, Record<string, any>> = {
     language: 'Langue',
     resetFilters: 'R\u00e9initialiser les filtres',
     crBadge: 'CR \u00b7 En Danger Critique',
-    filter: 'Filtre'
+    filter: 'Filtre',
+    close: 'Fermer'
   }
 }
 
